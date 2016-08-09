@@ -91,3 +91,4 @@ ENV/
 # Custom Ignores
 setenv.sh
 *.sqlite
+migrations/
