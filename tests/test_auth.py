@@ -56,6 +56,16 @@ class AuthTestCase(unittest.TestCase):
         response = self.login(email, password)
         data = response.get_data(as_text=True)
         self.assertTrue('Log Out' in data)
+        self.assertTrue('A confirmation email has been sent to you by email.' in data)
+        
+        # test user confirmation
+        user = User.query.filter_by(email=email).first()
+        token = user.generate_confirmation_token()
+        with self.app.test_request_context():
+            response = self.client.get(url_for('auth.confirm', token=token),
+                                       follow_redirects=True)
+        data = response.get_data(as_text=True)
+        self.assertTrue('You have confirmed your account' in data)
 
         # test user logout
         response = self.logout()
