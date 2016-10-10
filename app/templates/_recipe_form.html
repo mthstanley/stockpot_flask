@@ -1,0 +1,67 @@
+{% import "bootstrap/wtf.html" as wtf %}
+<form class="recipe-form form-inline" method="post" role="form">
+    {{ form.hidden_tag() }}
+    {{ wtf.form_errors(form, hiddens="only") }}
+    <div class="container">
+        <ul class="nav nav-tabs"> 
+            <li class="active"><a data-toggle="tab" href="#title-container">Title</a></li>
+            <li><a data-toggle="tab" href="#ingredients-container">Ingredients</a></li>
+            <li><a data-toggle="tab" href="#steps-container">Steps</a></li>
+        </ul>
+        <div class="tab-content">
+        <div id="title-container" class="tab-pane fade in active">
+            <h2>{{ wtf.form_field(form.title) }}</h2>
+        </div>
+        <div id="ingredients-container" class="tab-pane fade">
+            <h3>
+                Ingredients 
+                <button data-target="#ingredient-fields" class="add-field btn btn-default pull-right">
+                    <span class="glyphicon glyphicon-plus"></span> 
+                </button>
+            </h3>
+            <div id="ingredient-fields" class="dynamic-fields">
+            {% for ingredient in form.ingredients %}
+            <div id="{{ ingredient.id }}-group" class="form-group nested-group ingredient">
+                {% for field in ingredient if 'csrf_token' not in field.id %}
+                    {% if field.type == 'FormField' %}
+                        {% for subfield in field %}
+                            {{ subfield(class="form-control dynamic-field") }}
+                        {% endfor %}
+                    {% else %}
+                        {{ field(class="form-control dynamic-field") }}
+                    {% endif %}
+                {% endfor %}
+                <span class="btn btn-default form-control">
+                <span class="remove glyphicon glyphicon-remove-circle dynamic-field" id="{{ ingredient.id }}-remove"></span>
+                </span>
+                {{ ingredient.csrf_token(class="dynamic-field") }}
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div id="steps-container" class="tab-pane fade">
+            <h3>
+                Steps 
+                <button data-target="#step-fields", class="add-field btn btn-default pull-right">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
+            </h3>
+            <ol id="step-fields" class="dynamic-fields">
+            {% for step in form.steps %}
+                <li class="step" id="{{ step.id }}-group">
+                    {{ step.csrf_token(class="dynamic-field") }}
+                    <div class="input-group">
+                        {{ step.body(class="form-control dynamic-field") }}
+                        <span class="btn btn-default input-group-addon">
+                            <span class="remove glyphicon glyphicon-remove-circle dynamic-field" id="{{ step.id }}-remove"></span>
+                        </span>
+                    </div>
+                </li>
+            {% endfor %}
+            </ol>
+        </div>
+        </div>
+        <!--</div>-->
+    <br>
+    {{ wtf.form_field(form.submit) }}
+</form>

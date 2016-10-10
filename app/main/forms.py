@@ -1,9 +1,9 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
-    SubmitField
+    SubmitField, FormField, FieldList, IntegerField, FloatField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
-from ..models import Role, User
+from ..models import Role, User, RecipeStep, RecipeIngredient, Ingredient
 
 
 class EditProfileForm(Form):
@@ -42,4 +42,33 @@ class EditProfileAdminForm(Form):
         if field.data != self.user.username and \
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
-    
+
+
+class IngredientForm(Form):
+    name = StringField('Name', validators=[Required(), Length(1, 64)], render_kw={'placeholder':'e.g. Carrots'})
+
+
+class RecipeIngredientForm(Form):
+    amount = FloatField('Amount', validators=[Required()], render_kw={'placeholder':'e.g. 1'})
+    units = SelectField(
+        'Units', 
+        choices=[('cup', 'cup'), ('tbsp', 'tbsp'), ('tsp', 'tsp')]
+    )
+    ingredient = FormField(IngredientForm)
+
+
+class StepForm(Form):
+    body = TextAreaField('Step')
+
+
+class RecipeForm(Form):
+    title = StringField('What are we cooking?', validators=[Required(), Length(1, 64)])
+    # define defualt factory functions for ingredients and steps so that when
+    # they are appended to the form wtforms knows how to add them to the
+    # sqlalchemy object and then populate them
+    ingredients = FieldList(FormField(
+        RecipeIngredientForm, 
+        default=lambda: RecipeIngredient(ingredient=Ingredient())
+    ), min_entries=1)
+    steps = FieldList(FormField(StepForm, default=lambda: RecipeStep()), min_entries=1)
+    submit = SubmitField('Submit')

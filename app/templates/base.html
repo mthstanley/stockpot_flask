@@ -7,6 +7,7 @@
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='_recipe_form.css') }}">
 {% endblock %}
 
 {% block navbar %}
@@ -64,4 +65,50 @@
 {% block scripts %}
 {{ super() }}
 {{ moment.include_moment() }}
+<script>
+$(function(){
+    var increment = function(string){
+        return string.replace(new RegExp('-(\\d+)-', 'gi'), function(match, p1){
+            return '-'+(parseInt(p1)+1)+'-';
+        });
+    };
+
+    $('.add-field').on('click', function(e){
+        e.preventDefault();
+        var target = $($(e.currentTarget).data('target'));
+        var clone = target.children().last().clone();
+        $(clone).find('.dynamic-field').addBack().each(function(index, elt){
+            elt.id = increment(elt.id);
+            if (elt.name){
+                elt.name = increment(elt.name);
+            }
+            // reset input elements
+            if($(elt).is('input')){
+                // csrf token have type hidden and we don't want to reset them
+                if(elt.type !== 'hidden'){
+                    $(elt).val('');
+                }
+            }
+            if($(elt).is('select')){
+                $(elt).children().removeAttr('selected');
+            }
+            if($(elt).is('textarea')){
+                $(elt).val('');
+            }
+        });
+        target.append(clone);
+    });
+
+    $(document).on('click', '[id$=remove]',function(e){
+        e.preventDefault();
+        var idPrefix = e.currentTarget.id.split('-').slice(0,2).join('-');
+        var toRemove = $('#' + idPrefix + '-group');
+        // make sure user can't remove all input groups
+        if(toRemove.siblings().length){
+            toRemove.remove();
+        }
+    });
+
+});
+</script>
 {% endblock %}

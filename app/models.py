@@ -53,6 +53,39 @@ class Role(db.Model):
         db.session.commit()
 
 
+class Recipe(db.Model):
+    __tablename__ = 'recipes'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(64))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    ingredients = db.relationship('RecipeIngredient', backref='recipe', lazy='dynamic')
+    steps = db.relationship('RecipeStep', backref='recipe', lazy='dynamic')
+
+
+class RecipeStep(db.Model):
+    __tablename__ = 'recipesteps'
+    id = db.Column(db.Integer, primary_key=True)
+    body = db.Column(db.Text)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'))
+
+
+class RecipeIngredient(db.Model):
+    __tablename__ = 'recipeingredients'
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Float)
+    units = db.Column(db.String(64))
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredients.id'))
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'))
+
+
+class Ingredient(db.Model):
+    __tablename__ = 'ingredients'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+    recipe_ingredients = db.relationship('RecipeIngredient', backref='ingredient', lazy='dynamic')
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -67,6 +100,7 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+    recipes = db.relationship('Recipe', backref='author', lazy='dynamic')
 
 
     def __init__(self, **kwargs):
