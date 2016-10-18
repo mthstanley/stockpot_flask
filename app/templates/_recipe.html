@@ -11,11 +11,9 @@
         <h1 class="recipe-title">
             {{ recipe.title }}
             {% if current_user == recipe.author %}
-            <form class="edit-recipe pull-right" action="{{ url_for('.edit_recipe', id=recipe.id) }}">
-                <button class="btn btn-default" type="submit">
-                    <span class="glyphicon glyphicon-pencil"></span> Edit recipe
-                </button>
-            </form>
+            <a class="edit-recipe pull-right btn btn-default" href="{{ url_for('.edit_recipe', id=recipe.id) }}">
+                <span class="glyphicon glyphicon-pencil"></span> Edit recipe
+            </a>
             {% endif %}
         </h1> 
     </div>
