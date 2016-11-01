@@ -1,14 +1,15 @@
 """
 Contains the SQLAlchemy classes for the Role and User models
 """
-from . import db, login_manager
+from sqlalchemy import event
+from . import db, login_manager, recipe_imgs
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request
 from datetime import datetime
 import hashlib
-
+import os
 
 class Permission:
     FOLLOW = 0x01
@@ -58,9 +59,36 @@ class Recipe(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    img_filename = db.Column(db.String(256))
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     ingredients = db.relationship('RecipeIngredient', backref='recipe', lazy='dynamic')
     steps = db.relationship('RecipeStep', backref='recipe', lazy='dynamic')
+
+    @property
+    def img_src(self):
+        return recipe_imgs.url(self.img_filename)
+    
+
+    @property
+    def img_path(self):
+        return recipe_imgs.path(self.img_filename)
+
+
+    def delete_img(self):
+        if self.img_filename != current_app.config['STOCKPOT_DEFAULT_IMG']:
+            os.remove(self.img_path)
+
+
+    def update_img(self, filename):
+        if filename != self.img_filename:
+            self.delete_img()
+        self.img_filename = filename
+
+
+# clean up function for Recipe instance before deletion
+@event.listens_for(Recipe, 'before_delete')
+def recipe_before_delete(mapper, connection, target):
+    target.delete_img()
 
 
 class RecipeStep(db.Model):

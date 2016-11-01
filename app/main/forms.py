@@ -1,6 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
-    SubmitField, FormField, FieldList, IntegerField, FloatField
+    SubmitField, FormField, FieldList, IntegerField, FloatField, FileField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
 from ..models import Role, User, RecipeStep, RecipeIngredient, Ingredient
@@ -63,6 +63,7 @@ class StepForm(Form):
 
 class RecipeForm(Form):
     title = StringField('What are we cooking?', validators=[Required(), Length(1, 64)])
+    image = FileField('Upload an image')
     # define defualt factory functions for ingredients and steps so that when
     # they are appended to the form wtforms knows how to add them to the
     # sqlalchemy object and then populate them

@@ -1,13 +1,14 @@
 """
 Routes and views for the main blueprint.
 """
-from flask import render_template, session, redirect, url_for, flash, request
+from flask import render_template, session, redirect, url_for, flash, request, current_app
 from . import main
-from ..models import User, Permission, Recipe, Role, RecipeIngredient, Ingredient, \
-        RecipeStep
-from .. import db
+from ..models import (User, Permission, Recipe, Role, RecipeIngredient, Ingredient, 
+        RecipeStep)
+from .. import db, recipe_imgs
 from .forms import EditProfileForm, EditProfileAdminForm, RecipeForm
 from flask_login import login_required, current_user
+from flask_uploads import UploadNotAllowed
 from ..decorators import admin_required
 
 
@@ -74,28 +75,43 @@ def edit_profile_admin(id):
 @login_required
 def create_recipe(): 
     form = RecipeForm()
-    if current_user.can(Permission.WRITE_RECIPES) and \
+    default_img = current_app.config['STOCKPOT_DEFAULT_IMG']
+    if request.method == 'POST':
+        if current_user.can(Permission.WRITE_RECIPES) and \
             form.validate_on_submit():
-        amounts = [ing.amount.data for ing in form.ingredients] 
-        units = [ing.units.data for ing in form.ingredients] 
-        names = [Ingredient(name=ing.ingredient.data['name']) for ing in form.ingredients]
-        recipe_ings = []
-        for item in zip(amounts, units, names):
-            recipe_ings.append(RecipeIngredient(
-                amount=item[0],
-                units=item[1],
-                ingredient=item[2]
-            ))
-        steps = [RecipeStep(body=step.body.data) for step in form.steps]
-        recipe = Recipe(
-            title=form.title.data,
-            ingredients=recipe_ings,
-            steps=steps, 
-            author=current_user._get_current_object()
-        )
-        db.session.add(recipe)
-        return redirect(url_for('.user', username=current_user.username))
-    return render_template('create_recipe.html', form=form)
+            amounts = [ing.amount.data for ing in form.ingredients] 
+            units = [ing.units.data for ing in form.ingredients] 
+            names = [Ingredient(name=ing.ingredient.data['name']) for ing in form.ingredients]
+            recipe_ings = []
+            for item in zip(amounts, units, names):
+                recipe_ings.append(RecipeIngredient(
+                    amount=item[0],
+                    units=item[1],
+                    ingredient=item[2]
+                ))
+            steps = [RecipeStep(body=step.body.data) for step in form.steps]
+            img = form.image.data
+            filename = default_img
+            # if the user didn't upload a file, use default filename
+            # otherwise try to upload image
+            if img.filename != '':
+                try:
+                    filename = recipe_imgs.save(img)
+                except UploadNotAllowed:
+                    flash('The upload was not allowed') 
+                    return render_template('create_recipe.html', form=form)
+            
+            recipe = Recipe(
+                title=form.title.data,
+                ingredients=recipe_ings,
+                steps=steps, 
+                author=current_user._get_current_object(),
+                img_filename=filename 
+            )
+            db.session.add(recipe)
+            return redirect(url_for('.user', username=current_user.username))
+    return render_template('create_recipe.html', form=form, 
+                          default_img=recipe_imgs.url(default_img))
 
 
 @main.route('/recipes/<int:id>')
@@ -111,10 +127,21 @@ def edit_recipe(id):
     form = RecipeForm(obj=recipe)
     if form.validate_on_submit() and current_user == recipe.author:
         form.populate_obj(recipe)
+        img = form.image.data
+        filename = recipe.img_filename
+        # if the user didn't upload a file, default to old filename
+        # otherwise try to upload image
+        if img.filename != '':
+            try:
+                filename = recipe_imgs.save(img)
+            except UploadNotAllowed:
+                flash('The upload was not allowed') 
+                return render_template('edit_recipe.html', form=form, recipe=recipe)
+        recipe.update_img(filename)
         db.session.add(recipe)
         flash('Recipe was successfully updated.')
         return redirect(url_for('.show_recipe', id=id))
-    return render_template('edit_recipe.html', form=form)
+    return render_template('edit_recipe.html', form=form, recipe=recipe)
 
 
 @main.route('/recipes/<int:id>/delete')

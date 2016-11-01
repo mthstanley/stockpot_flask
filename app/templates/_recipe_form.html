@@ -1,8 +1,8 @@
 {% import "bootstrap/wtf.html" as wtf %}
-<form class="recipe-form form-inline" method="post" role="form">
+<form class="recipe-form form-inline" method="post" role="form" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     {{ wtf.form_errors(form, hiddens="only") }}
-    <div class="container">
+    <div class="container-fluid">
         <ul class="nav nav-tabs"> 
             <li class="active"><a data-toggle="tab" href="#title-container">Title</a></li>
             <li><a data-toggle="tab" href="#ingredients-container">Ingredients</a></li>
@@ -10,7 +10,23 @@
         </ul>
         <div class="tab-content">
         <div id="title-container" class="tab-pane fade in active">
-            <h2>{{ wtf.form_field(form.title) }}</h2>
+            <div class="form-group">
+                <div class="row">
+                {% if not recipe or recipe.img_src == default_img %}
+                    <div class="col-md-6">
+                        <img id="upload-img" class="img-responsive" src="{{ default_img }}" />
+                    </div>
+                {% else %}
+                    <div class="col-md-6">
+                        <img id="upload-img" class="img-responsive" src="{{ recipe.img_src }}" />
+                    </div>
+                {% endif %}
+                <div class="col-md-6">
+                    <h2>{{ wtf.form_field(form.title) }}</h2>
+                    {{ wtf.form_field(form.image) }}
+                </div>
+                </div>
+            </div>
         </div>
         <div id="ingredients-container" class="tab-pane fade">
             <h3>

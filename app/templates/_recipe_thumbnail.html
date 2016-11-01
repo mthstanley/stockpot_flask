@@ -19,7 +19,7 @@
             <div class="recipe-date">{{ moment(recipe.timestamp).fromNow() }}</div>
         </div>
         <div class="recipe-content">
-            <img class="recipe-image img-responsive" src="{{ url_for('static', filename="food_test.png") }}">
+            <img class="recipe-image img-responsive" src="{{ recipe.img_src }}">
         </div>
         <div class="recipe-footer">
             <h3 class="recipe-title"><a href="{{ url_for('.show_recipe', id=recipe.id) }}">{{ recipe.title }}</a></h3>
