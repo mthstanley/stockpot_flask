@@ -92,4 +92,4 @@ ENV/
 setenv.sh
 *.sqlite
 migrations/
-uploads/*
+app/uploads/*
