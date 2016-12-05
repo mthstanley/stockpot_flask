@@ -10,6 +10,7 @@ from .forms import EditProfileForm, EditProfileAdminForm, RecipeForm
 from flask_login import login_required, current_user
 from flask_uploads import UploadNotAllowed
 from ..decorators import admin_required
+from datetime import timedelta
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -100,13 +101,16 @@ def create_recipe():
                 except UploadNotAllowed:
                     flash('The upload was not allowed') 
                     return render_template('create_recipe.html', form=form)
-            
+            print(form.prep_time.data)
             recipe = Recipe(
                 title=form.title.data,
                 ingredients=recipe_ings,
                 steps=steps, 
                 author=current_user._get_current_object(),
-                img_filename=filename 
+                img_filename=filename, 
+                prep_time=form.prep_time.data,
+                cook_time=form.cook_time.data,
+                description=form.description.data
             )
             db.session.add(recipe)
             return redirect(url_for('.user', username=current_user.username))

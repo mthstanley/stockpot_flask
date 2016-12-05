@@ -4,6 +4,8 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
 from ..models import Role, User, RecipeStep, RecipeIngredient, Ingredient
+from .fields import DurationField, TIME_REGEX
+from datetime import timedelta
 
 
 class EditProfileForm(Form):
@@ -64,6 +66,9 @@ class StepForm(Form):
 class RecipeForm(Form):
     title = StringField('What are we cooking?', validators=[Required(), Length(1, 64)])
     image = FileField('Upload an image')
+    prep_time = DurationField('Prep Time', default=timedelta())
+    cook_time = DurationField('Cook Time', default=timedelta())
+    description = TextAreaField('Description')
     # define defualt factory functions for ingredients and steps so that when
     # they are appended to the form wtforms knows how to add them to the
     # sqlalchemy object and then populate them
@@ -73,3 +78,17 @@ class RecipeForm(Form):
     ), min_entries=1)
     steps = FieldList(FormField(StepForm, default=lambda: RecipeStep()), min_entries=1)
     submit = SubmitField('Submit')
+
+
+    def validate_cook_time(self, field):
+        # if field data is none then field's process_formdata
+        # time regex did not match meaning the field has invalid input
+        if field.data is None:
+            raise ValidationError('Enter valid cook time.')
+
+
+    def validate_prep_time(self, field):
+        # if field data is none then field's process_formdata
+        # time regex did not match meaning the field has invalid input
+        if field.data is None:
+            raise ValidationError('Enter valid prep time.')

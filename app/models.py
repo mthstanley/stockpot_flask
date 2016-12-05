@@ -63,6 +63,10 @@ class Recipe(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     ingredients = db.relationship('RecipeIngredient', backref='recipe', lazy='dynamic')
     steps = db.relationship('RecipeStep', backref='recipe', lazy='dynamic')
+    prep_time = db.Column(db.Interval)
+    cook_time = db.Column(db.Interval)
+    description = db.Column(db.Text)
+
 
     @property
     def img_src(self):

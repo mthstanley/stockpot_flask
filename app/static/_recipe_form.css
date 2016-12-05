@@ -11,6 +11,9 @@ span.remove:hover {
     background: none;
     color: #af5b5e;
 }
+.ingredient {
+    width: 75%;
+}
 .nested-group {
     padding: 15px 0px 15px 0px;
     margin: 0px auto;
@@ -41,6 +44,7 @@ span.remove:hover {
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
     background-color: #eee;
+    width: 150px;
 }
 .nested-group  span.btn:hover {
     background-color: #e6e6e6;
@@ -58,6 +62,10 @@ form.recipe-form li.step {
     padding: 15px;
     width: 60%;
     margin: 0px auto;
+}
+form.recipe-form li.step .li-inner-wrapper {
+    display: inline-block;
+    vertical-align: middle;
 }
 form.recipe div#ingredient-fields {
     margin: 0 auto;
@@ -77,4 +85,8 @@ div#ingredients-container h3 {
 }
 div#steps-container h3 {
     height: 50px;
+}
+#upload-img {
+    height: 300px;
+    object-fit: cover;
 }

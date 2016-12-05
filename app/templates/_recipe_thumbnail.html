@@ -1,6 +1,6 @@
 <div class="recipe-widget-container col-lg-3 col-md-4 col-sm-6 col-xs-12">
-    <div class="recipe-widget">
-        <div class="recipe-header">
+    <div class="recipe-widget panel panel-default">
+        <div class="recipe-header panel-heading">
             <div class="thumb-edit-btn btn-group pull-right">
                 <span class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-option-vertical"></span>
@@ -18,10 +18,10 @@
             <div class="recipe-author"><a href="{{ url_for('.user', username=recipe.author.username) }}">{{ recipe.author.username }}</a></div>
             <div class="recipe-date">{{ moment(recipe.timestamp).fromNow() }}</div>
         </div>
-        <div class="recipe-content">
-            <img class="recipe-image img-responsive" src="{{ recipe.img_src }}">
+        <div class="recipe-content panel-body">
+            <img class="recipe-img" src="{{ recipe.img_src }}" />
         </div>
-        <div class="recipe-footer">
+        <div class="recipe-footer panel-footer">
             <h3 class="recipe-title"><a href="{{ url_for('.show_recipe', id=recipe.id) }}">{{ recipe.title }}</a></h3>
         </div>
     </div>

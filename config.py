@@ -14,7 +14,7 @@ class Config:
     STOCKPOT_MAIL_SUBJECT_PREFIX = '[Stockpot]'
     STOCKPOT_MAIL_SENDER = 'Stockpot Admin <stockpot@example.com>'
     STOCKPOT_ADMIN = os.environ.get('STOCKPOT_ADMIN')
-    UPLOADED_RECIPEIMGS_DEST = '/tmp/uploads'
+    UPLOADED_RECIPEIMGS_DEST = os.path.join(basedir, 'app/uploads/')
     STOCKPOT_DEFAULT_IMG = 'stockpot.jpeg'
 
     @staticmethod

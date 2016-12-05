@@ -1,38 +1,46 @@
-
-<div class="recipe-thumbnail">
-    <a href="{{ url_for('.user', username=recipe.author.username) }}">
-        <img class="img-rounded profile-thumbnail" src="{{ recipe.author.gravatar(size=40) }}">
-    </a>
-</div>
-<div class="recipe-content">
-    <div class="recipe-date">{{ moment(recipe.timestamp).fromNow() }}</div>
-    <div class="recipe-author"><a href="{{ url_for('.user', username=recipe.author.username) }}">{{ recipe.author.username }}</a></div>
-    <div class="page-header">
-        <h1 class="recipe-title">
-            {{ recipe.title }}
-            {% if current_user == recipe.author %}
-            <a class="edit-recipe pull-right btn btn-default" href="{{ url_for('.edit_recipe', id=recipe.id) }}">
-                <span class="glyphicon glyphicon-pencil"></span> Edit recipe
-            </a>
-            {% endif %}
-        </h1> 
-    </div>
-    <div class="recipe-body">
-        <div class ="recipe-ingredients col-md-4">
-            <h4>Ingredients</h4>
-            <ul class="ingredients">
-            {% for ingredient in recipe.ingredients %}
-                {% include '_ingredient.html' %}
-            {% endfor %}
-            </ul>
+<div class="recipe-content panel panel-default">
+    <div class="panel-heading">
+        <div class="recipe-description">
+            <img class="recipe-img" src="{{ recipe.img_src }}" />
+            <h1 class="recipe-title">
+                {{ recipe.title }}
+                {% if current_user == recipe.author %}
+                <a class="edit-recipe pull-right btn btn-default" href="{{ url_for('.edit_recipe', id=recipe.id) }}">
+                    <span class="glyphicon glyphicon-pencil"></span> Edit recipe
+                </a>
+                {% endif %}
+            </h1> 
         </div>
-        <div class="recipe-steps col-md-8">
-            <h4>Steps</h4>
-            <ol class="steps">
-            {% for step in recipe.steps %}
-                {% include '_step.html' %}
-            {% endfor %}
-            </ol>
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="author-thumbnail col-md-4">
+                <a href="{{ url_for('.user', username=recipe.author.username) }}" class="pull-left">
+                    <img class="img-circle profile-thumbnail" src="{{ recipe.author.gravatar(size=40) }}">
+                </a>
+                <div class="recipe-author"><a href="{{ url_for('.user', username=recipe.author.username) }}">{{ recipe.author.username }}</a></div>
+                <div class="recipe-date">{{ moment(recipe.timestamp).fromNow() }}</div>
+            </div>
+            <div class="col-md-2"><span class="recipe-prep-time-label">Prep Time</span> {{ recipe.prep_time }}</div>
+            <div class="col-md-2"><span class="recipe-cook-time-label">Cook Time</span> {{ recipe.cook_time }}</div>
+        </div>
+        <div class="recipe-body row">
+            <div class ="recipe-ingredients col-md-4">
+                <h3>Ingredients</h3>
+                <ul class="ingredients">
+                {% for ingredient in recipe.ingredients %}
+                    {% include '_ingredient.html' %}
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="recipe-steps col-md-8">
+                <h3>Steps</h3>
+                <ol class="steps">
+                {% for step in recipe.steps %}
+                    {% include '_step.html' %}
+                {% endfor %}
+                </ol>
+            </div>
         </div>
     </div>
 </div>
