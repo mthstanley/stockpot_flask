@@ -6,6 +6,7 @@ from wtforms import ValidationError
 from ..models import Role, User, RecipeStep, RecipeIngredient, Ingredient
 from .fields import DurationField, TIME_REGEX
 from datetime import timedelta
+from flask import current_app
 
 
 class EditProfileForm(Form):
@@ -54,7 +55,7 @@ class RecipeIngredientForm(Form):
     amount = FloatField('Amount', validators=[Required()], render_kw={'placeholder':'e.g. 1'})
     units = SelectField(
         'Units', 
-        choices=[('cup', 'cup'), ('tbsp', 'tbsp'), ('tsp', 'tsp')]
+        choices=[(unit, unit) for unit in current_app.config['RECIPE_UNITS']]
     )
     ingredient = FormField(IngredientForm)
 

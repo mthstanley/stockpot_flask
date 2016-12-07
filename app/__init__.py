@@ -35,13 +35,18 @@ def create_app(config_name):
     migrate.init_app(app, db)
 
     configure_uploads(app, recipe_imgs)
-
-    # register blueprints
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
     
-    from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='/auth')
-    #####################
+    # push an app context so we have access to current_app
+    # when things like forms are created
+    with app.app_context():
+        # register blueprints
+        from .main import main as main_blueprint
+        app.register_blueprint(main_blueprint)
+        
+        from .auth import auth as auth_blueprint
+        app.register_blueprint(auth_blueprint, url_prefix='/auth')
+        #####################
 
     return app
+
+

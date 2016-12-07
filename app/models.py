@@ -2,6 +2,7 @@
 Contains the SQLAlchemy classes for the Role and User models
 """
 from sqlalchemy import event
+from sqlalchemy.exc import IntegrityError
 from . import db, login_manager, recipe_imgs
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
@@ -10,6 +11,8 @@ from flask import current_app, request
 from datetime import datetime
 import hashlib
 import os
+from faker import Faker
+from random import randint, choice
 
 class Permission:
     FOLLOW = 0x01
@@ -56,6 +59,9 @@ class Role(db.Model):
 
 class Recipe(db.Model):
     __tablename__ = 'recipes'
+    INGREDIENT_LIMIT = 10
+    STEP_LIMIT = 10
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -87,6 +93,35 @@ class Recipe(db.Model):
         if filename != self.img_filename:
             self.delete_img()
         self.img_filename = filename
+
+
+    @classmethod
+    def generate_fake(cls, count=100):
+        fake = Faker()
+        user_count = User.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count-1)).first()
+            
+            ingredients = []
+            for j in range(randint(1, cls.INGREDIENT_LIMIT)):
+                ingredients.append(RecipeIngredient(
+                    amount=randint(1,10),
+                    units=choice(current_app.config['RECIPE_UNITS']),
+                    ingredient=Ingredient(name=fake.word())
+                ))
+
+            steps = []
+            for k in range(randint(1, cls.STEP_LIMIT)):
+                steps.append(RecipeStep(body=fake.text()))
+
+            r = Recipe(
+                title=fake.word(),
+                ingredients=ingredients,
+                steps=steps,
+                author=u,
+                img_filename=current_app.config['STOCKPOT_DEFAULT_IMG'],
+                description=fake.text()
+            )
 
 
 # clean up function for Recipe instance before deletion
@@ -205,6 +240,29 @@ class User(UserMixin, db.Model):
         hashed = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
         return '{url}/{hashed}?s={size}&d={default}&r={rating}'.format(
             url=url, hashed=hashed, size=size, default=default, rating=rating)
+
+
+    @staticmethod
+    def generate_fake(count=100):
+        fake = Faker()
+
+        for i in range(count):
+            u = User(
+                email=fake.email(),
+                username=fake.user_name(),
+                password=fake.word(),
+                confirmed=True,
+                name=fake.name(),
+                location=fake.city(),
+                about_me=fake.text(),
+                member_since=fake.date_time_this_century(
+                    before_now=True,after_now=False, tzinfo=None))
+            db.session.add(u)
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+
 
 
 class AnonymousUser(AnonymousUserMixin):
