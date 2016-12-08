@@ -60,3 +60,7 @@ form.edit-recipe {
     width: 100%;
     object-fit: cover;
 }
+div.pagination {
+    width: 100%;
+    text-align: center;
+}

@@ -17,7 +17,7 @@ class Config:
     UPLOADED_RECIPEIMGS_DEST = os.path.join(basedir, 'app/uploads/')
     STOCKPOT_DEFAULT_IMG = 'stockpot.jpeg'
     RECIPE_UNITS = ['cup', 'tbsp', 'tsp']
-    STOCKPOT_POSTS_PER_PAGE = 20
+    STOCKPOT_RECIPES_PER_PAGE = 24
 
     @staticmethod
     def init_app(app):

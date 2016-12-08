@@ -15,8 +15,13 @@ from datetime import timedelta
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    recipes = Recipe.query.order_by(Recipe.timestamp.desc()).all()
-    return render_template('index.html', recipes=recipes)
+    page = request.args.get('page', 1, type=int)
+    pagination = Recipe.query.order_by(Recipe.timestamp.desc()).paginate(
+        page, per_page=current_app.config['STOCKPOT_RECIPES_PER_PAGE'], 
+        error_out=False)
+    recipes = pagination.items
+    return render_template('index.html', recipes=recipes,
+                          pagination=pagination)
 
 
 @main.route('/user/<username>')
@@ -24,8 +29,13 @@ def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
-    recipes = user.recipes.order_by(Recipe.timestamp.desc()).all()
-    return render_template('user.html', user=user, recipes=recipes)
+    page = request.args.get('page', 1, type=int)
+    pagination = user.recipes.order_by(Recipe.timestamp.desc()).paginate(
+        page, per_page=current_app.config['STOCKPOT_RECIPES_PER_PAGE'], 
+        error_out=False)
+    recipes = pagination.items
+    return render_template('user.html', user=user, recipes=recipes,
+                           pagination=pagination)
 
 
 @main.route('/edit_profile', methods=['GET', 'POST'])
