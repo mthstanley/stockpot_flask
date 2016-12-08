@@ -1,10 +1,11 @@
 """
 Routes and views for the main blueprint.
 """
-from flask import render_template, session, redirect, url_for, flash, request, current_app
+from flask import (render_template, session, redirect, url_for, flash, request, 
+                   current_app, abort)
 from . import main
 from ..models import (User, Permission, Recipe, Role, RecipeIngredient, Ingredient, 
-        RecipeStep)
+                      RecipeStep)
 from .. import db, recipe_imgs
 from .forms import EditProfileForm, EditProfileAdminForm, RecipeForm
 from flask_login import login_required, current_user
@@ -138,8 +139,12 @@ def show_recipe(id):
 @login_required
 def edit_recipe(id):
     recipe = Recipe.query.get_or_404(id)
+    if current_user != recipe.author and \
+       not current_user.can(Permission.ADMINISTER):
+        abort(403)
+
     form = RecipeForm(obj=recipe)
-    if form.validate_on_submit() and current_user == recipe.author:
+    if form.validate_on_submit():
         form.populate_obj(recipe)
         img = form.image.data
         filename = recipe.img_filename

@@ -1,6 +1,7 @@
 <div class="recipe-widget-container col-lg-3 col-md-4 col-sm-6 col-xs-12">
     <div class="recipe-widget panel panel-default">
         <div class="recipe-header panel-heading">
+            {% if current_user == recipe.author or current_user.is_administrator() %}
             <div class="thumb-edit-btn btn-group pull-right">
                 <span class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-option-vertical"></span>
@@ -10,6 +11,7 @@
                     <li><a href="{{ url_for('.edit_recipe', id=recipe.id) }}">Edit recipe</a></li>
                 </ul>
             </div>
+            {% endif %}
             <div class="recipe-thumbnail">
                 <a href="{{ url_for('.user', username=recipe.author.username) }}">
                     <img class="profile-thumbnail" src="{{ recipe.author.gravatar(size=50) }}">
