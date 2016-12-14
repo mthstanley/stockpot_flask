@@ -1,9 +1,29 @@
 {% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
 
-{% block title %}Stockpot{% endblock %}
+{% block title %}Stockpot - Recipe{% endblock %}
 
 {% block page_content %}
 <div class="recipe">
     {% include '_recipe.html'%}
+</div>
+<div class="comments-container panel panel-default panel-raised">
+    <div class="panel-heading">
+        <h4 id="comments">Comments</h4>
+        {% if current_user.can(Permission.COMMENT) %}
+        <div class="comment-form">
+            {{ wtf.quick_form(form) }}
+        </div>
+        {% endif %}
+    </div>
+    <div class="panel-body">
+        {% include '_comments.html' %}
+        {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.show_recipe', fragment='#comments', id=recipe.id) }}
+        </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

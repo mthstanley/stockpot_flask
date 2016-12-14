@@ -19,6 +19,7 @@ class Config:
     RECIPE_UNITS = ['cup', 'tbsp', 'tsp']
     STOCKPOT_RECIPES_PER_PAGE = 24
     STOCKPOT_FOLLOWERS_PER_PAGE = 24
+    STOCKPOT_COMMENTS_PER_PAGE = 24
 
     @staticmethod
     def init_app(app):

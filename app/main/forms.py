@@ -93,3 +93,8 @@ class RecipeForm(Form):
         # time regex did not match meaning the field has invalid input
         if field.data is None:
             raise ValidationError('Enter valid prep time.')
+
+
+class CommentForm(Form):
+    body = StringField('', validators=[Required()])
+    submit = SubmitField('Submit')
