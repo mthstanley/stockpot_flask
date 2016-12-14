@@ -153,6 +153,16 @@ class Ingredient(db.Model):
     recipe_ingredients = db.relationship('RecipeIngredient', backref='ingredient', lazy='dynamic')
 
 
+class Follow(db.Model):
+    __tablename__ = 'follows'
+    follower_id = db.Column(db.Integer, db.ForeignKey('users.id'), 
+                           primary_key=True)
+    followed_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                           primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -168,6 +178,16 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     recipes = db.relationship('Recipe', backref='author', lazy='dynamic')
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
 
 
     def __init__(self, **kwargs):
@@ -180,6 +200,7 @@ class User(UserMixin, db.Model):
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(
                 self.email.encode('utf-8')).hexdigest()
+        self.follow(self)
 
 
     def __repr__(self):
@@ -194,6 +215,14 @@ class User(UserMixin, db.Model):
     @password.setter
     def password(self, password):
         self.password_hash = generate_password_hash(password)
+
+
+    @property
+    def followed_recipes(self):
+        # join recipe rows with follow table by matching followed_id to author_id
+        # then select the rows where the follower is the user instance
+        return Recipe.query.join(Follow, Follow.followed_id == Recipe.author_id)\
+                .filter(Follow.follower_id == self.id)
 
 
     def verify_password(self, password):
@@ -240,6 +269,37 @@ class User(UserMixin, db.Model):
         hashed = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
         return '{url}/{hashed}?s={size}&d={default}&r={rating}'.format(
             url=url, hashed=hashed, size=size, default=default, rating=rating)
+
+
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower=self, followed=user)
+            db.session.add(f)
+
+
+    def unfollow(self, user):
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            db.session.delete(f)
+
+
+    def is_following(self, user):
+        return self.followed.filter_by(
+            followed_id=user.id).first() is not None
+
+
+    def is_followed_by(self, user):
+        return self.followers.filter_by(
+            follower_id=user.id).first() is not None
+
+
+    @staticmethod
+    def add_self_follows():
+        for user in User.query.all():
+            if not user.is_following(user):
+                user.follow(user)
+                db.session.add(user)
+                db.session.commit()
 
 
     @staticmethod
