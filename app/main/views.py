@@ -12,6 +12,7 @@ from flask_login import login_required, current_user
 from flask_uploads import UploadNotAllowed
 from ..decorators import admin_required, permission_required
 from datetime import timedelta
+from math import ceil
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -235,8 +236,7 @@ def show_recipe(id):
 
     page = request.args.get('page', 1, type=int)
     if page == -1:
-        page = (recipe.comments.count() - 1) / \
-                current_app.config['STOCKPOT_COMMENTS_PER_PAGE'] + 1
+        page = ceil(recipe.comments.count() / current_app.config['STOCKPOT_COMMENTS_PER_PAGE'])
     pagination = recipe.comments.order_by(Comment.timestamp.asc()).paginate(
         page, per_page=current_app.config['STOCKPOT_COMMENTS_PER_PAGE'],
         error_out=False)
