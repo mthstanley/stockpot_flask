@@ -64,33 +64,67 @@ div.pagination {
     width: 100%;
     text-align: center;
 }
+
+
 ul.comments {
-    list-style-type: none;
+    list-style: none;
+    padding-left: 80px;
+    margin-top: 20px;
+}
+.comment-form {
+    padding-top: 20px;
+}
+.comment-form textarea {
+    border-radius: 0px;
+    border: none;
+    resize: vertical;
+}
+.comment-form .comment-body {
     padding: 0px;
-    margin: 16px 0px 0px 0px;
 }
-ul.comments li.comment {
-    padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
+.comment-form .comment-thumbnail {
+    margin-left: 0px;
 }
-ul.comments li.comment:nth-child(1) {
-    border-top: 1px solid #e0e0e0;
+.comment-form .comment-content {
+    margin-left: 95px;
 }
-ul.comments li.comment:hover {
-    background-color: #f0f0f0;
+.comment-thumbnail {
+    margin-left: -80px;
+    float: left;
 }
-div.comment-date {
-    float: right;
+.comment-content {
+    margin-left: 15px;
 }
-div.comment-author {
-    font-weight: bold;
+.arrowbox {
+    position: relative;
 }
-div.comment-thumbnail {
+
+.arrowbox-right:after,
+.arrowbox-right:before {
+    content: '';
+    display: block;
     position: absolute;
+    right: 100%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
 }
-div.comment-content {
-    margin-left: 48px;
-    min-height: 48px;
+
+/* difference in border-width between before, after is border size */
+.arrowbox-right:after {
+    /* tooltip background */
+    border-color: transparent #f5f5f5 transparent transparent;
+    border-width: 10px;
+    margin-top: -10px;
 }
-div.comment-form {
-    margin: 16px 0px 16px 32px;
+
+.arrowbox-right:before {
+    /* tooltip border color */
+    border-color: transparent #ddd transparent transparent;
+    border-width: 11px;
+    margin-top: -11px;
+}
+h3#comments {
+    margin: 0px;
+}

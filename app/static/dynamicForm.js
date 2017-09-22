@@ -64,4 +64,9 @@ $(function(){
     $('input#image').on('change', function(){
         previewImage(this, $('img#upload-img'), recipeImg);
     });
+
+
+    $('span.add-comment').on('click', function(e){
+        $('.comment-form').slideToggle('slow');
+    });
 });

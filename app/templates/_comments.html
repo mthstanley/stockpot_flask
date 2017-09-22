@@ -2,14 +2,16 @@
     {% for comment in comments %}
     <li class="comment">
         <div class="comment-thumbnail">
-            <a href="{{ url_for('.user', username=comment.author.username) }}">
-                <img class="img-rounded profile-thumbnail" src="{{ comment.author.gravatar(size=40) }}">
-            </a>
+                <a href="{{ url_for('.user', username=comment.author.username) }}">
+                    <img class="img-rounded profile-thumbnail" src="{{ comment.author.gravatar(size=80) }}">
+                </a>
         </div>
-        <div class="comment-content">
-            <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>
-            <div class="comment-author"><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></div>
-            <div class="comment-body">
+        <div class="comment-content panel panel-default">
+            <div class="comment-heading panel-heading arrowbox arrowbox-right">
+                <span class="comment-author"><a href="{{ url_for('.user', username=comment.author.username) }}">{{ comment.author.username }}</a></span> commented
+                <span class="comment-date">{{ moment(comment.timestamp).fromNow() }}</span>
+            </div>
+            <div class="comment-body panel-body">
                 {% if comment.disabled %}
                 <p><i>This comment has been disabled by a moderator.</i></p>
                 {% endif %}
@@ -20,15 +22,15 @@
                         {{ comment.body }}
                     {% endif %}
                 {% endif %}
-            </div>
-            {% if moderate %}
-                <br>
-                {% if comment.disabled %}
-                <a class="btn btn-default btn-xs" href="{{ url_for('.moderate_enable', id=comment.id, page=page) }}">Enable</a>
-                {% else %}
-                <a class="btn btn-danger btn-xs" href="{{ url_for('.moderate_disable', id=comment.id, page=page) }}">Disable</a>
+                {% if moderate %}
+                    <br>
+                    {% if comment.disabled %}
+                    <a class="btn btn-default btn-xs" href="{{ url_for('.moderate_enable', id=comment.id, page=page) }}">Enable</a>
+                    {% else %}
+                    <a class="btn btn-danger btn-xs" href="{{ url_for('.moderate_disable', id=comment.id, page=page) }}">Disable</a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+            </div>
         </div>
     </li>
     {% endfor %}

@@ -96,5 +96,5 @@ class RecipeForm(Form):
 
 
 class CommentForm(Form):
-    body = StringField('', validators=[Required()])
+    body = TextAreaField('Comment', validators=[Required()])
     submit = SubmitField('Submit')

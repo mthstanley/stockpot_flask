@@ -8,16 +8,32 @@
 <div class="recipe">
     {% include '_recipe.html'%}
 </div>
-<div class="comments-container panel panel-default panel-raised">
-    <div class="panel-heading">
-        <h4 id="comments">Comments</h4>
-        {% if current_user.can(Permission.COMMENT) %}
-        <div class="comment-form">
-            {{ wtf.quick_form(form) }}
-        </div>
-        {% endif %}
+<div class="comments-container">
+    <div class="clearfix">
+        <h3 class="pull-left" id="comments">Comments</h3>
+        <span class="add-comment btn btn-default glyphicon glyphicon-plus pull-right"></span>
     </div>
-    <div class="panel-body">
+    {% if current_user.can(Permission.COMMENT) %}
+    <form class="comment-form" style="display:none;" method="post" role="form">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_errors(form, hiddens="only") }}
+        <div class="comment-thumbnail">
+                <a href="{{ url_for('.user', username=current_user.username) }}">
+                    <img class="img-rounded profile-thumbnail" src="{{ current_user.gravatar(size=80) }}">
+                </a>
+        </div>
+        <div class="comment-content panel panel-default">
+            <div class="panel-heading arrowbox arrowbox-right">
+                <span class="comment-author"><a href="{{ url_for('.user', username=current_user.username) }}">{{ current_user.username }}</a></span> is composing a comment...
+            </div>
+            <div class="comment-body panel-body">
+                {{ form.body(class_="form-control") }}
+            </div>
+        </div>
+        {{ wtf.form_field(form.submit) }}
+    </form>
+    {% endif %}
+    <div>
         {% include '_comments.html' %}
         {% if pagination %}
         <div class="pagination">
